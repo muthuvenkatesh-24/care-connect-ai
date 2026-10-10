@@ -4,15 +4,18 @@
 
 - Python 3.12 or newer
 - Node.js 20.19+ or 22.12+
-- MySQL 8.0+ (the connection settings are prepared; database access is not used by this scaffold yet)
+- MySQL 8.0+
 
 ## Configure
 
-From the repository root, copy `.env.example` to `.env` and update the MySQL values for your local installation. Keep `.env` private; it is ignored by Git.
+From the repository root, create `.env` from the example only if you do not already have a local `.env`, then update the MySQL values. `JWT_SECRET_KEY` must be a random secret of at least 32 characters. Generate one with:
 
 ```powershell
-Copy-Item .env.example .env
+if (-not (Test-Path .env)) { Copy-Item .env.example .env }
+python -c "import secrets; print(secrets.token_urlsafe(48))"
 ```
+
+Paste the generated value into `.env`. Keep that file private; it is ignored by Git.
 
 ## Start the backend
 
@@ -23,10 +26,11 @@ py -3.12 -m venv backend\.venv
 backend\.venv\Scripts\Activate.ps1
 python -m pip install -r backend\requirements.txt
 Set-Location backend
+alembic upgrade head
 python -m uvicorn app.main:app --reload --host 127.0.0.1 --port 8000
 ```
 
-The API is available at `http://127.0.0.1:8000`; health check: `http://127.0.0.1:8000/api/health`.
+The API is available at `http://127.0.0.1:8000`. Registration and login are available under `/api/auth`; health check: `http://127.0.0.1:8000/api/health`.
 
 ## Start the frontend
 
