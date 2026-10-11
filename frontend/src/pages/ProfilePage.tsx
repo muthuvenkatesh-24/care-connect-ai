@@ -7,10 +7,12 @@ import type { PatientProfile } from '../types/patient'
 type ProfileTab = 'personal' | 'health'
 
 export function ProfilePage() {
-  const { data, saveProfile, lastSaved } = usePatientData()
+  const { data, saveProfile, lastSaved, error, retry } = usePatientData()
   const [draft, setDraft] = useState(data.profile)
   const [tab, setTab] = useState<ProfileTab>('personal')
   const [saved, setSaved] = useState(false)
+  const [saving, setSaving] = useState(false)
+  const [saveError, setSaveError] = useState('')
 
   useEffect(() => setDraft(data.profile), [data.profile])
 
@@ -19,9 +21,17 @@ export function ProfilePage() {
     setSaved(false)
   }
 
-  function save() {
-    saveProfile(draft)
-    setSaved(true)
+  async function save() {
+    setSaving(true)
+    setSaveError('')
+    try {
+      await saveProfile(draft)
+      setSaved(true)
+    } catch (reason) {
+      setSaveError(reason instanceof Error ? reason.message : 'Could not save your changes. Please try again.')
+    } finally {
+      setSaving(false)
+    }
   }
 
   return (
@@ -36,7 +46,8 @@ export function ProfilePage() {
         <button role="tab" aria-selected={tab === 'personal'} className={tab === 'personal' ? 'profile-tab-active' : ''} onClick={() => setTab('personal')}>Personal information</button>
         <button role="tab" aria-selected={tab === 'health'} className={tab === 'health' ? 'profile-tab-active' : ''} onClick={() => setTab('health')}>Health information</button>
       </div>
-      <form id="profile-form" className="surface-card profile-form" onSubmit={(event) => { event.preventDefault(); save() }}>
+      <form id="profile-form" className="surface-card profile-form" onSubmit={(event) => { event.preventDefault(); void save() }}>
+        {error && <div className="auth-error" role="alert"><Icon name="shield" size={17} />{error} <button type="button" className="button-as-link" onClick={retry}>Retry</button></div>}
         {tab === 'personal' ? <>
           <div className="form-section-heading"><div><h2>Personal details</h2><p>Basic information for your patient profile.</p></div><span className="private-label"><Icon name="shield" size={14} /> Private</span></div>
           <div className="profile-fields">
@@ -66,8 +77,8 @@ export function ProfilePage() {
           </div>
         </>}
         <div className="profile-form-footer">
-          <span className={saved ? 'save-confirmation' : 'save-hint'}>{saved ? <><Icon name="check" size={15} /> {lastSaved === 'browser' ? 'Saved in this browser' : 'Updated for this session'}</> : 'Changes stay in your browser demo.'}</span>
-          <button type="submit" className="button button-primary"><Icon name="check" size={16} /> Save changes</button>
+          <span className={saved ? 'save-confirmation' : 'save-hint'}>{saved ? <><Icon name="check" size={15} /> {lastSaved === 'browser' ? 'Changes saved to your account' : 'Updated for this session'}</> : saveError ? saveError : 'Changes are saved to your account.'}</span>
+          <button type="submit" className="button button-primary" disabled={saving}>{saving ? 'Saving…' : <><Icon name="check" size={16} /> Save changes</>}</button>
         </div>
       </form>
     </>

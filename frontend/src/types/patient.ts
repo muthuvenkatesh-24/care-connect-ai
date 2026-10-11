@@ -76,3 +76,20 @@ export type PatientData = {
   components: HealthComponent[]
   scoreHistory: { date: string; score: number }[]
 }
+
+export type ApiProfile = {
+  email: string
+  name: string
+  phone: string | null
+  date_of_birth: string | null
+  gender: string | null
+  address: string | null
+  emergency_contact: string | null
+  emergency_phone: string | null
+  blood_type: string | null
+  height_cm: number | null
+  weight_kg: number | null
+  allergies: string | null
+  conditions: string | null
+  medications: string | null
+}
