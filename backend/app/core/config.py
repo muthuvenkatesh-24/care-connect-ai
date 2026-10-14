@@ -11,7 +11,7 @@ class Settings:
     """Environment-backed settings with development-friendly defaults."""
 
     api_host: str = os.getenv("API_HOST", "127.0.0.1")
-    api_port: int = int(os.getenv("API_PORT", "8000"))
+    api_port: int = int(os.getenv("API_PORT", "8001"))
     mysql_host: str = os.getenv("MYSQL_HOST", "127.0.0.1")
     mysql_port: int = int(os.getenv("MYSQL_PORT", "3306"))
     mysql_database: str = os.getenv("MYSQL_DATABASE", "care_connect")

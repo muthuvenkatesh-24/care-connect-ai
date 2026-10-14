@@ -27,10 +27,10 @@ backend\.venv\Scripts\Activate.ps1
 python -m pip install -r backend\requirements.txt
 Set-Location backend
 alembic upgrade head
-python -m uvicorn app.main:app --reload --host 127.0.0.1 --port 8000
+python -m uvicorn app.main:app --reload --host 127.0.0.1 --port 8001
 ```
 
-The API is available at `http://127.0.0.1:8000`. Registration and login are available under `/api/auth`; health check: `http://127.0.0.1:8000/api/health`.
+The API is available at `http://127.0.0.1:8001`. Registration and login are available under `/api/auth`; health check: `http://127.0.0.1:8001/api/health`.
 
 ## Start the frontend
 
@@ -42,7 +42,7 @@ npm install
 npm run dev
 ```
 
-Open the local URL printed by Vite. The development server proxies `/api` requests to the backend on port 8000.
+Open the local URL printed by Vite. The development server proxies `/api` requests to the backend on port 8001.
 
 ## Run backend tests
 
