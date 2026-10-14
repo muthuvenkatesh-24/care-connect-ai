@@ -16,7 +16,7 @@ class ProfileUpdate(BaseModel):
     address: Optional[Trimmed] = Field(default=None, max_length=300)
     emergency_contact: Optional[Trimmed] = Field(default=None, max_length=120)
     emergency_phone: Optional[Trimmed] = Field(default=None, max_length=40)
-    blood_type: Optional[Trimmed] = Field(default=None, max_length=5)
+    blood_type: Optional[Trimmed] = Field(default=None, max_length=10)
     height_cm: Optional[float] = Field(default=None, ge=50, le=250)
     weight_kg: Optional[float] = Field(default=None, ge=1, le=400)
     allergies: Optional[Trimmed] = Field(default=None, max_length=500)
