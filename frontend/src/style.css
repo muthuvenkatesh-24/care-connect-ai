@@ -511,3 +511,65 @@ button:focus-visible, a:focus-visible, input:focus-visible, select:focus-visible
   .score-overview-ring .score-ring { width: 95px !important; height: 95px !important; }
   .score-overview-ring .score-ring svg { width: 95px; height: 95px; }
 }
+
+/* --- Shared state styles (live data, errors, new pages) --- */
+
+.inline-error { display: flex; align-items: flex-start; gap: 7px; padding: 10px; border-radius: 8px; color: #9a5c52; background: #fbf0ed; font-size: 10px; line-height: 1.5; }
+.inline-error svg { flex: 0 0 auto; margin-top: 1px; }
+.inline-error .button { margin-left: auto; }
+
+.score-ring-empty { width: 190px; height: 190px; display: grid; place-items: center; border-radius: 50%; color: #879890; background: #eef2f0; }
+.score-overview-trend.incomplete { color: #8a6d3b; }
+.score-status-incomplete { display: inline-flex; align-items: center; gap: 6px; color: #8a6d3b; background: #f7f1e6; padding: 8px 12px; border-radius: 10px; font-size: 10px; }
+
+.bmi-card, .dashboard-bmi-card, .dashboard-error-card { margin-bottom: 14px; }
+.dashboard-bmi-card, .dashboard-error-card { padding: 14px 18px; }
+.bmi-row { display: flex; align-items: center; gap: 9px; }
+.bmi-row strong { font-size: 24px; }
+.bmi-row span { color: #879890; }
+.bmi-row p { width: 100%; }
+.dashboard-error-card .inline-error { flex: 1; }
+.dashboard-error-card { display: flex; align-items: center; gap: 10px; }
+
+/* Medications */
+.medications-adherence-card { margin-bottom: 14px; }
+.adherence-stats { display: flex; gap: 14px; }
+.adherence-stat { flex: 1; padding: 10px 14px; border-radius: 10px; background: #f0f6f3; }
+.adherence-stat strong { display: block; font-size: 19px; }
+.adherence-stat span { font-size: 9px; color: #5f7a6e; }
+.adherence-stat.adherence-missed { background: #fbf0ed; }
+.adherence-stat.adherence-missed span { color: #a07e74; }
+.medication-card .medication-main { flex: 1; display: flex; justify-content: space-between; gap: 10px; }
+.medication-inactive { opacity: .55; }
+.toggle-inactive { display: inline-flex; align-items: center; gap: 6px; font-size: 9px; cursor: pointer; }
+
+/* Passport */
+.passport-grid { display: flex; flex-wrap: wrap; align-items: center; gap: 16px; }
+.passport-id { display: grid; gap: 3px; padding: 12px 18px; border-radius: 12px; background: #f0f6f3; }
+.passport-id strong { font-size: 15px; letter-spacing: .6px; font-family: ui-monospace, monospace; }
+.passport-actions { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; }
+.passport-qr-wrap { display: grid; place-items: center; gap: 9px; padding: 6px 0 2px; background: #fff; }
+.passport-link { font-size: 9px; color: #5f7a6e; word-break: break-all; }
+
+/* Symptom education */
+.education-band { display: grid; gap: 10px; margin-bottom: 14px; }
+.education-note { font-size: 10px; }
+.urgent-banner { padding: 12px 14px; border-radius: 10px; border: 1px solid #e8c6c0; background: #fdf1ef; color: #8d4b40; font-size: 10px; }
+.urgent-banner p { margin-top: 5px; line-height: 1.55; color: #7d6058; }
+.symptom-chip-row { display: flex; flex-wrap: wrap; gap: 7px; }
+.symptom-chip { display: inline-flex; align-items: center; gap: 5px; padding: 7px 12px; border: 1px solid var(--border, #dde5e1); border-radius: 999px; background: #fff; color: #3d5148; font-size: 10px; cursor: pointer; }
+.symptom-chip-active { background: var(--green); color: #fff; border-color: var(--green); }
+.edu-bucket { margin-top: 12px; padding: 11px 13px; border-radius: 10px; background: #f6f8f7; font-size: 10px; line-height: 1.6; display: grid; gap: 7px; }
+.edu-list { margin: 6px 0 12px; padding-left: 17px; font-size: 10px; line-height: 1.7; }
+.trend-card h3 { font-size: 10px; margin-top: 12px; color: #3d5148; }
+.disease-tabs { display: flex; flex-wrap: wrap; gap: 7px; margin-bottom: 10px; }
+.tab-button { padding: 7px 13px; border: 1px solid var(--border, #dde5e1); border-radius: 999px; background: #fff; color: #3d5148; font-size: 10px; cursor: pointer; }
+.tab-button.tab-active { background: var(--green); color: #fff; border-color: var(--green); }
+
+/* Doctor workspace */
+.verify-card { margin-bottom: 14px; }
+.verify-card form { margin-bottom: 10px; }
+.verify-result { font-size: 10px; line-height: 1.55; color: #3d5148; }
+.verify-result .upcoming-list { margin-top: 8px; }
+.doctor-card-summary .verify-result { margin-top: 8px; }
+.component-mixed { color: var(--green); background: #f0f6f3; }

@@ -147,9 +147,9 @@ export function scoreFor(components: HealthComponent[]): number {
 }
 
 export function metricLabel(type: MetricEntry['type']): string {
-  return ({ steps: 'Steps', sleep: 'Sleep', heartRate: 'Resting heart rate', weight: 'Weight' })[type]
+  return ({ steps: 'Steps', sleep: 'Sleep', heartRate: 'Resting heart rate', weight: 'Weight', water: 'Water', exercise: 'Active minutes' })[type]
 }
 
 export function metricUnit(type: MetricEntry['type']): string {
-  return ({ steps: 'steps', sleep: 'hours', heartRate: 'bpm', weight: 'kg' })[type]
+  return ({ steps: 'steps', sleep: 'hours', heartRate: 'bpm', weight: 'kg', water: 'glasses', exercise: 'min' })[type]
 }

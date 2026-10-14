@@ -53,7 +53,7 @@ export type Appointment = {
   tone: string
 }
 
-export type MetricType = 'steps' | 'sleep' | 'heartRate' | 'weight'
+export type MetricType = 'steps' | 'sleep' | 'heartRate' | 'weight' | 'water' | 'exercise'
 
 export type MetricEntry = {
   id: string

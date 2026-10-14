@@ -20,6 +20,8 @@ class Settings:
     jwt_secret_key: str = os.getenv("JWT_SECRET_KEY", "")
     access_token_minutes: int = int(os.getenv("ACCESS_TOKEN_MINUTES", "15"))
     app_env: str = os.getenv("APP_ENV", "development")
+    # Public origin of the frontend, used to build Health Passport QR links (opaque codes only).
+    public_app_origin: str = os.getenv("PUBLIC_APP_ORIGIN", "http://localhost:5173")
 
     @property
     def database_url(self) -> URL:

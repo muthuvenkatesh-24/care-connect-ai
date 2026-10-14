@@ -8,22 +8,33 @@ import type { Appointment, Doctor } from '../types/patient'
 
 type VisitTab = 'upcoming' | 'past'
 
-function BookingDialog({ doctor, onClose, onBook }: { doctor?: Doctor; onClose: () => void; onBook: (appointment: Appointment) => void }) {
+function BookingDialog({ doctor, mode, onClose, onBook }: { doctor?: Doctor; mode: 'demo' | 'live'; onClose: () => void; onBook: (appointment: Appointment) => Promise<void> }) {
   const doctors = getDoctors()
   const [selectedId, setSelectedId] = useState(doctor?.id ?? doctors[0].id)
   const [date, setDate] = useState(() => { const date = new Date(); date.setDate(date.getDate() + 1); return date.toISOString().slice(0, 10) })
   const [time, setTime] = useState('10:00 AM')
   const [type, setType] = useState<Appointment['type']>('Video visit')
+  const [saving, setSaving] = useState(false)
+  const [error, setError] = useState<string | null>(null)
   const selectedDoctor = doctors.find((item) => item.id === selectedId) ?? doctors[0]
 
-  function submit(event: FormEvent<HTMLFormElement>) {
+  async function submit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault()
-    onBook({
-      id: `appt-${Date.now()}`, doctorId: selectedDoctor.id, doctorName: selectedDoctor.name,
-      specialty: selectedDoctor.specialty, date, time, type, status: 'upcoming',
-      location: type === 'Video visit' ? 'Secure video visit' : 'Northside Health · Suite 204',
-      initials: selectedDoctor.initials, tone: selectedDoctor.tone,
-    })
+    setSaving(true)
+    setError(null)
+    try {
+      await onBook({
+        id: `appt-${Date.now()}`, doctorId: selectedDoctor.id, doctorName: selectedDoctor.name,
+        specialty: selectedDoctor.specialty, date, time, type, status: 'upcoming',
+        location: type === 'Video visit' ? 'Secure video visit' : 'Clinic address on file',
+        initials: selectedDoctor.initials, tone: selectedDoctor.tone,
+      })
+    } catch (reason) {
+      setError(reason instanceof Error ? reason.message : 'The booking could not be saved.')
+      setSaving(false)
+      return
+    }
+    setSaving(false)
   }
 
   return <Modal title="Book an appointment" description="Choose a provider and a time that works for you." onClose={onClose}>
@@ -32,8 +43,11 @@ function BookingDialog({ doctor, onClose, onBook }: { doctor?: Doctor; onClose: 
       <div className="booking-doctor-summary"><Avatar initials={selectedDoctor.initials} tone={selectedDoctor.tone} /><div><strong>{selectedDoctor.name}</strong><span>{selectedDoctor.credentials} · {selectedDoctor.experience} years experience</span></div><strong className="booking-fee">${selectedDoctor.visitFee}</strong></div>
       <div className="field-row"><label>Date<input type="date" value={date} min={new Date().toISOString().slice(0, 10)} onChange={(event) => setDate(event.target.value)} required /></label><label>Time<select value={time} onChange={(event) => setTime(event.target.value)}>{['9:00 AM', '10:00 AM', '11:15 AM', '1:00 PM', '2:30 PM', '3:45 PM'].map((slot) => <option key={slot}>{slot}</option>)}</select></label></div>
       <label>Visit type<select value={type} onChange={(event) => setType(event.target.value as Appointment['type'])}><option>Video visit</option><option>In person</option></select></label>
-      <div className="booking-note"><Icon name="shield" size={16} /><span>This demo booking stays in this browser. It is not sent to a clinic.</span></div>
-      <div className="modal-footer inline-modal-footer"><button type="button" className="button button-secondary" onClick={onClose}>Cancel</button><button type="submit" className="button button-primary">Confirm appointment <Icon name="arrow" size={15} /></button></div>
+      {error && <div className="inline-error"><Icon name="shield" size={15} /><span>{error}</span></div>}
+      <div className="booking-note"><Icon name="shield" size={16} /><span>{mode === 'live'
+        ? 'This creates a patient-managed appointment record in your CareConnect account. It is not sent to the clinic and does not confirm a slot with the provider.'
+        : 'This demo booking stays in this browser. It is not sent to a clinic.'}</span></div>
+      <div className="modal-footer inline-modal-footer"><button type="button" className="button button-secondary" onClick={onClose}>Cancel</button><button type="submit" className="button button-primary" disabled={saving}>{saving ? 'Saving…' : <>Confirm appointment <Icon name="arrow" size={15} /></>}</button></div>
     </form>
   </Modal>
 }
@@ -49,13 +63,14 @@ function VisitCard({ appointment, onCancel }: { appointment: Appointment; onCanc
 }
 
 export function AppointmentsPage() {
-  const { data, bookAppointment, cancelAppointment } = usePatientData()
+  const { data, mode, bookAppointment, cancelAppointment } = usePatientData()
   const [searchParams, setSearchParams] = useSearchParams()
   const [tab, setTab] = useState<VisitTab>('upcoming')
   const [specialty, setSpecialty] = useState('All specialties')
   const [search, setSearch] = useState(searchParams.get('search') ?? '')
   const [bookingDoctor, setBookingDoctor] = useState<Doctor | undefined>()
   const [bookingOpen, setBookingOpen] = useState(searchParams.get('book') === '1')
+  const [cancelError, setCancelError] = useState<string | null>(null)
   const doctors = getDoctors()
   const specialties = ['All specialties', ...new Set(doctors.map((doctor) => doctor.specialty))]
   const filteredDoctors = useMemo(() => doctors.filter((doctor) =>
@@ -74,8 +89,12 @@ export function AppointmentsPage() {
     setSearchParams((current) => { const next = new URLSearchParams(current); next.delete('book'); return next }, { replace: true })
   }
 
-  function confirmBooking(appointment: Appointment) {
-    bookAppointment(appointment)
+  async function confirmBooking(appointment: Appointment) {
+    try {
+      await bookAppointment(appointment)
+    } catch {
+      return // the dialog keeps the server error visible
+    }
     setTab('upcoming')
     closeBooking()
   }
@@ -103,21 +122,27 @@ export function AppointmentsPage() {
 
     <section className="visits-section">
       <div className="section-title"><div><h2>Your visits</h2><p>Keep track of what's coming up and where you've been.</p></div></div>
+      {cancelError && <div className="inline-error"><Icon name="shield" size={15} /><span>{cancelError}</span></div>}
       <div className="segmented-tabs" role="tablist" aria-label="Appointment history">
         <button role="tab" aria-selected={tab === 'upcoming'} className={tab === 'upcoming' ? 'tab-active' : ''} onClick={() => setTab('upcoming')}>Upcoming <span>{data.appointments.filter((item) => item.status === 'upcoming').length}</span></button>
         <button role="tab" aria-selected={tab === 'past'} className={tab === 'past' ? 'tab-active' : ''} onClick={() => setTab('past')}>Past visits</button>
       </div>
       {appointments.length > 0 ? (
         <div className="visit-list">
-          {appointments.map((appointment) => <VisitCard key={appointment.id} appointment={appointment} onCancel={(id) => { if (window.confirm('Cancel this demo appointment?')) cancelAppointment(id) }} />)}
+          {appointments.map((appointment) => <VisitCard key={appointment.id} appointment={appointment} onCancel={async (id) => {
+            if (!window.confirm(mode === 'live' ? 'Cancel this appointment record?' : 'Cancel this demo appointment?')) return
+            setCancelError(null)
+            try { await cancelAppointment(id) }
+            catch (reason) { setCancelError(reason instanceof Error ? reason.message : 'The appointment could not be cancelled.') }
+          }} />)}
         </div>
       ) : (
         <div className="surface-card">
           <EmptyState title={tab === 'upcoming' ? 'Nothing on your calendar yet' : 'No past visits to show'} description={tab === 'upcoming' ? 'Book a visit with a provider when you are ready.' : 'Completed appointments will appear here.'} action={emptyAction} />
         </div>
       )}
-      {tab === 'upcoming' && appointments.length > 0 && <p className="demo-inline-note">Demo bookings are saved only in this browser. They do not notify a provider.</p>}
+      {tab === 'upcoming' && appointments.length > 0 && <p className="demo-inline-note">Bookings are patient-managed records saved to {mode === 'live' ? 'your CareConnect account — they do not notify the clinic or add the provider to your care team' : 'this browser'}. {mode === 'live' ? 'Bring the details to your provider to arrange the actual visit.' : 'They do not notify a provider.'}</p>}
     </section>
-    {bookingOpen && <BookingDialog doctor={bookingDoctor} onClose={closeBooking} onBook={confirmBooking} />}
+    {bookingOpen && <BookingDialog doctor={bookingDoctor} mode={mode} onClose={closeBooking} onBook={confirmBooking} />}
   </>
 }

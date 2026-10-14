@@ -53,6 +53,6 @@ export function SectionTitle({ title, action }: { title: string; action?: ReactN
   return <div className="section-title"><h2>{title}</h2>{action}</div>
 }
 
-export function EmptyState({ icon = 'calendar', title, description, action }: { icon?: 'calendar' | 'heart'; title: string; description: string; action?: ReactNode }) {
+export function EmptyState({ icon = 'calendar', title, description, action }: { icon?: 'calendar' | 'heart' | 'shield'; title: string; description: string; action?: ReactNode }) {
   return <div className="empty-state"><span className="empty-icon"><Icon name={icon} size={24} /></span><h3>{title}</h3><p>{description}</p>{action}</div>
 }
